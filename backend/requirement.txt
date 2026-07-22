@@ -1,0 +1,9 @@
+langchain
+langchain-core
+langchain-community
+langchain-google-genai
+langchain-mistralai
+python-dotenv
+fastapi
+pandas
+chromadb
