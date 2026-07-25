@@ -1,7 +1,7 @@
 import os
 
 import chromadb
-from query_embedding import query_embedding
+from services.query_embedding import query_embedding
 
 client = chromadb.CloudClient(
     api_key=os.getenv("CHROMA_API_KEY"),
@@ -32,4 +32,4 @@ def retrieve_emails(
         n_results=n_results
     )
 
-    return results
+    return results["documents"][0]

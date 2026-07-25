@@ -19,13 +19,13 @@ def load_email_documents():
     for index, row in df.iterrows():
 
         content = f"""
-Company Type: {row["company_type"]}
-Industry: {row["industry"]}
-Target Role: {row["role"]}
+                Company Type: {row["company_type"]}
+                Industry: {row["industry"]}
+                Target Role: {row["role"]}
 
-Cold Email:
-{row["email"]}
-"""
+                Cold Email:
+                {row["email"]}
+                """
 
         document = Document(
             page_content=content.strip(),
