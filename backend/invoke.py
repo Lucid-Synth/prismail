@@ -1,7 +1,17 @@
-from backend.services.retriever import retrieve_emails
-from langchain_core.prompts import PromptTemplate
+import sys
+from pathlib import Path
+
+if __package__ is None:
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+try:
+    from .services.retriever import retrieve_emails
+    from .prompts.prompt import prompt
+except ImportError:
+    from services.retriever import retrieve_emails
+    from prompts.prompt import prompt
+
 from langchain_mistralai import ChatMistralAI
-from backend.prompts.prompt import prompt
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -9,61 +19,42 @@ load_dotenv()
 
 model = ChatMistralAI(
     model="mistral-large-latest",
-    temperature=0.7
+    temperature=0.7,
 )
 
 
-def get_user_details(
+def generate_cold_email(
     name: str,
     email: str,
-    portfolio: str = "",
-    github: str = "",
-    phone: str = ""
-) -> dict:
-    """
-    Returns a dictionary containing user information.
-    """
+    portfolio: str,
+    github: str,
+    phone: str,
+    company: str,
+    role: str,
+    skills: str,
+    tone: str,
+) -> str:
+    emails = retrieve_emails(
+        company=company,
+        role=role,
+        skills=skills,
+        tone=tone,
+    )
 
-    return {
-        "name": name,
-        "email": email,
-        "portfolio": portfolio,
-        "github": github,
-        "phone": phone,
-    }
-    
-# Demo arguments   
-user = get_user_details(
-    name="Max alison",
-    email="max@example.com",
-    portfolio="https://maxyourway.dev",
-    github="https://github.com/maxx",
-    phone="+91 9876543210"
-)
+    chain = prompt | model
+    response = chain.invoke(
+        {
+            "name": name,
+            "email": email,
+            "portfolio": portfolio,
+            "github": github,
+            "phone": phone,
+            "company": company,
+            "role": role,
+            "skills": skills,
+            "tone": tone,
+            "emails": emails,
+        }
+    )
 
-emails = retrieve_emails(
-    # Demo arguments
-    company="Google",
-    role="Backend Engineer",
-    skills="Python, FastAPI, PostgreSQL",
-    tone="Professional"
-)
-
-chain = prompt | model
-
-response = chain.invoke(
-    {
-        "name": user["name"],
-        "email": user["email"],
-        "portfolio": user["portfolio"],
-        "github": user["github"],
-        "phone": user["phone"],
-        "company": "Google",
-        "role": "Backend Engineer",
-        "skills": "Python, FastAPI, PostgreSQL",
-        "tone": "Professional",
-        "emails": emails,
-    }
-)
-
-print(response.content)
+    return response.content
