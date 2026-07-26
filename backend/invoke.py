@@ -1,7 +1,7 @@
-from services.retriever import retrieve_emails
+from backend.services.retriever import retrieve_emails
 from langchain_core.prompts import PromptTemplate
 from langchain_mistralai import ChatMistralAI
-from prompts.prompt import prompt
+from backend.prompts.prompt import prompt
 from dotenv import load_dotenv
 
 load_dotenv()
