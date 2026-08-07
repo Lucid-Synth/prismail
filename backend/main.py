@@ -4,7 +4,7 @@ from typing import List, Annotated
 from .models import model
 from .config.database import engine, SessionLocal
 from sqlalchemy.orm import Session
-from .auth import auth
+from .auth import router, get_current_user
 from .invoke import generate_cold_email
 
 class User_detail(BaseModel):
@@ -21,7 +21,7 @@ class User_detail(BaseModel):
     
 app = FastAPI()
 
-app.include_router(auth.router)
+app.include_router(router)
 model.Base.metadata.create_all(bind=engine)
 
 def get_db():
@@ -32,6 +32,7 @@ def get_db():
         db.close()
         
 db_dependency = Annotated[Session,Depends(get_db)]
+user_dependency = Annotated[dict, Depends(get_current_user)]
 
 @app.get("/",status_code=status.HTTP_200_OK)
 async def user(user: None, db: db_dependency):
@@ -40,7 +41,7 @@ async def user(user: None, db: db_dependency):
     return {"User": user}
 
 @app.post('/generate')
-def generate_email(user: User_detail):
+def generate_email(user: User_detail,token: user_dependency,db: db_dependency):
     response = generate_cold_email(
         name=user.name,
         email=user.email,
