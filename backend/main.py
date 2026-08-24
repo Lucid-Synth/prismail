@@ -6,6 +6,7 @@ from .config.database import engine, SessionLocal
 from sqlalchemy.orm import Session
 from .auth import router, get_current_user
 from .invoke import generate_cold_email
+from fastapi.middleware.cors import CORSMiddleware
 
 class User_detail(BaseModel):
     name: str
@@ -20,6 +21,18 @@ class User_detail(BaseModel):
     
     
 app = FastAPI()
+
+origins = [
+    "http://localhost:5173"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_headers=["*"],
+    allow_methods=["*"]
+)
 
 app.include_router(router)
 model.Base.metadata.create_all(bind=engine)

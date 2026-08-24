@@ -1,6 +1,7 @@
 import { useState, type ButtonHTMLAttributes, type FormEvent, type JSX } from "react";
 import { motion, type Variants } from "framer-motion";
 import { User, Lock, Eye, EyeOff, ArrowRight, Loader2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const fadeUp: Variants = {
   hidden: { opacity: 0, y: 14 },
@@ -12,18 +13,49 @@ const stagger: Variants = {
   show: { transition: { staggerChildren: 0.07, delayChildren: 0.05 } },
 };
 
+
+
 export default function LoginPage(): JSX.Element {
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
 
-  function handleSubmit(e: FormEvent<HTMLFormElement>): void {
+  const navigate = useNavigate()
+
+  async function handleSubmit(e: FormEvent<HTMLFormElement>): Promise<void> {
     e.preventDefault();
     setLoading(true);
-    // TODO: POST { username, password } to your /auth/login endpoint,
-    // store the returned JWT, then redirect.
-    setTimeout(() => setLoading(false), 900);
+    try{
+      
+      const formData = new URLSearchParams();
+
+      formData.append('grant_type','password');
+      formData.append('username',username);
+      formData.append('password', password);
+      formData.append('scope','');
+      formData.append('client_id','');
+      formData.append('client_secret','');
+
+      const response = await fetch('http://localhost:8000/auth/login',{
+        method: 'POST',
+        headers: {
+          'Content-type': "application/x-www-form-urlencoded"
+        },
+        body: formData 
+      })
+
+      if(!response.ok) throw new Error("Submission failed")
+
+      const savedData = await response.json()
+      setLoading(false)
+      localStorage.setItem('token',savedData.access_token)
+      console.log(savedData)
+      navigate('/dashboard')
+    }
+    catch(error){
+      console.log("Error: ", error)
+    }
   }
 
   return (
