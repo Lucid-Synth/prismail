@@ -1,7 +1,8 @@
-import { useState, type ButtonHTMLAttributes, type FormEvent, type JSX } from "react";
-import { motion, type Variants } from "framer-motion";
+import { useState, useEffect, type ButtonHTMLAttributes, type FormEvent, type JSX } from "react";
+import { motion, type Variants, AnimatePresence } from "framer-motion";
 import { User, Lock, Eye, EyeOff, ArrowRight, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { Alert, type AlertVariant } from "../components/Alert";
 
 const fadeUp: Variants = {
   hidden: { opacity: 0, y: 14 },
@@ -15,46 +16,101 @@ const stagger: Variants = {
 
 
 
+type AlertState = { variant: AlertVariant; title: string; message: string } | null;
+
 export default function LoginPage(): JSX.Element {
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
+  const [alert, setAlert] = useState<AlertState>(null);
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!alert) return;
+    const ms = alert.variant === "error" ? 6000 : 3500;
+    const t = setTimeout(() => setAlert(null), ms);
+    return () => clearTimeout(t);
+  }, [alert]);
+
+  function getErrorMessage(data: unknown, fallback: string): string {
+    if (data && typeof data === "object" && "detail" in data) {
+      const d = (data as { detail: unknown }).detail;
+      if (typeof d === "string") return d;
+      if (Array.isArray(d) && d[0]?.msg) return String(d[0].msg);
+    }
+    return fallback;
+  }
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>): Promise<void> {
     e.preventDefault();
+    setAlert(null);
+
+    const u = username.trim();
+    if (!u || !password) {
+      setAlert({ variant: "warning", title: "Missing fields", message: "Please enter both username and password." });
+      return;
+    }
+
     setLoading(true);
-    try{
-      
+    try {
       const formData = new URLSearchParams();
 
-      formData.append('grant_type','password');
-      formData.append('username',username);
-      formData.append('password', password);
-      formData.append('scope','');
-      formData.append('client_id','');
-      formData.append('client_secret','');
+      formData.append("grant_type", "password");
+      formData.append("username", u);
+      formData.append("password", password);
+      formData.append("scope", "");
+      formData.append("client_id", "");
+      formData.append("client_secret", "");
 
-      const response = await fetch('http://localhost:8000/auth/login',{
-        method: 'POST',
+      const response = await fetch("http://localhost:8000/auth/login", {
+        method: "POST",
         headers: {
-          'Content-type': "application/x-www-form-urlencoded"
+          "Content-type": "application/x-www-form-urlencoded",
         },
-        body: formData 
-      })
+        body: formData,
+      });
 
-      if(!response.ok) throw new Error("Submission failed")
+      const data: unknown = await response.json().catch(() => ({}));
 
-      const savedData = await response.json()
-      setLoading(false)
-      localStorage.setItem('token',savedData.access_token)
-      console.log(savedData)
-      navigate('/dashboard')
-    }
-    catch(error){
-      console.log("Error: ", error)
+      if (!response.ok) {
+        let title = "Login failed";
+        if (response.status === 401) title = "Invalid credentials";
+        else if (response.status === 422) title = "Validation error";
+        else if (response.status === 400) title = "Invalid input";
+        else if (response.status >= 500) title = "Server error";
+
+        const msg = getErrorMessage(data, `Login failed (${response.status}). Please try again.`);
+        setAlert({ variant: "error", title, message: msg });
+        return;
+      }
+
+      const savedData = data as { access_token?: string };
+      if (!savedData.access_token) {
+        setAlert({ variant: "error", title: "Login failed", message: "Server did not return a token. Please try again." });
+        return;
+      }
+
+      localStorage.setItem("token", savedData.access_token);
+      setAlert({
+        variant: "success",
+        title: "Welcome back!",
+        message: "Logged in successfully. Redirecting to dashboard...",
+      });
+      setTimeout(() => navigate("/dashboard"), 700);
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : "Network error. Is the server running?";
+      const isNetwork = msg.includes("Failed to fetch") || msg.includes("NetworkError");
+      setAlert({
+        variant: "error",
+        title: isNetwork ? "Cannot reach server" : "Something went wrong",
+        message: isNetwork
+          ? "Unable to connect to http://localhost:8000. Please check the backend is running."
+          : msg,
+      });
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -94,7 +150,21 @@ export default function LoginPage(): JSX.Element {
             Good to see you again.
           </motion.p>
 
-          <motion.form variants={fadeUp} onSubmit={handleSubmit} className="mt-9 space-y-5">
+          {/* Alert slot */}
+          <div className="mt-6 min-h-[0px]">
+            <AnimatePresence mode="wait">
+              {alert && (
+                <Alert
+                  variant={alert.variant}
+                  title={alert.title}
+                  message={alert.message}
+                  onDismiss={() => setAlert(null)}
+                />
+              )}
+            </AnimatePresence>
+          </div>
+
+          <motion.form variants={fadeUp} onSubmit={handleSubmit} className="mt-6 space-y-5">
             <Field
               id="username"
               label="Username"

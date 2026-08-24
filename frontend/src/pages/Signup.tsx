@@ -1,7 +1,8 @@
-import { useState, type ButtonHTMLAttributes, type FormEvent, type JSX } from "react";
-import { motion, type Variants } from "framer-motion";
+import { useState, useEffect, type ButtonHTMLAttributes, type FormEvent, type JSX } from "react";
+import { motion, type Variants, AnimatePresence } from "framer-motion";
 import { UserRound, AtSign, Lock, Eye, EyeOff, ArrowRight, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { Alert, type AlertVariant } from "../components/Alert";
 
 const fadeUp: Variants = {
   hidden: { opacity: 0, y: 14 },
@@ -13,40 +14,109 @@ const stagger: Variants = {
   show: { transition: { staggerChildren: 0.07, delayChildren: 0.05 } },
 };
 
+type AlertState = { variant: AlertVariant; title: string; message: string } | null;
+
 export default function SignupPage(): JSX.Element {
   const [name, setName] = useState<string>("");
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
+  const [alert, setAlert] = useState<AlertState>(null);
 
   const navigate = useNavigate();
 
+  // auto-dismiss non-error after 4s, error after 6s
+  useEffect(() => {
+    if (!alert) return;
+    const ms = alert.variant === "error" ? 6000 : 4000;
+    const t = setTimeout(() => setAlert(null), ms);
+    return () => clearTimeout(t);
+  }, [alert]);
+
+  function getErrorMessage(data: unknown, fallback: string): string {
+    if (data && typeof data === "object" && "detail" in data) {
+      const d = (data as { detail: unknown }).detail;
+      if (typeof d === "string") return d;
+      if (Array.isArray(d) && d[0]?.msg) return String(d[0].msg);
+    }
+    if (data && typeof data === "object" && "message" in data) {
+      const m = (data as { message: unknown }).message;
+      if (typeof m === "string") return m;
+    }
+    return fallback;
+  }
+
   async function handleSubmit(e: FormEvent<HTMLFormElement>): Promise<void> {
     e.preventDefault();
+    setAlert(null);
+
+    // client-side validation for instant feedback
+    const u = username.trim();
+    if (!u || !password) {
+      setAlert({ variant: "warning", title: "Missing fields", message: "Please fill in username and password." });
+      return;
+    }
+    if (u.length < 3) {
+      setAlert({ variant: "warning", title: "Username too short", message: "Username must be at least 3 characters." });
+      return;
+    }
+    if (password.length < 8) {
+      setAlert({ variant: "warning", title: "Weak password", message: "Password must be at least 8 characters." });
+      return;
+    }
+
     setLoading(true);
 
-    try{
-      
-      const response = await fetch('http://localhost:8000/auth/signup',{
-        method: 'POST',
+    try {
+      const response = await fetch("http://localhost:8000/auth/signup", {
+        method: "POST",
         headers: {
-          "Content-type": "application/json"
+          "Content-type": "application/json",
         },
         body: JSON.stringify({
-          username,
-          password
-        })
-      })
+          username: u,
+          password,
+        }),
+      });
 
-      const data = await response.json();
-      console.log(data.success)
-      setLoading(false)
-      
-      navigate('/login')
-    }
-    catch(error){
-      console.log("Error: ",error);
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        // map status to friendly title
+        let title = "Signup failed";
+        if (response.status === 409) title = "Username taken";
+        else if (response.status === 422) title = "Validation error";
+        else if (response.status === 400) title = "Invalid input";
+        else if (response.status >= 500) title = "Server error";
+
+        const msg = getErrorMessage(data, `Request failed (${response.status}). Please try again.`);
+        setAlert({ variant: "error", title, message: msg });
+        return;
+      }
+
+      // success
+      setAlert({
+        variant: "success",
+        title: "Account created!",
+        message: (data as { message?: string }).message || "Your account was created successfully. Redirecting to login...",
+      });
+
+      // brief delay so user sees success feedback
+      setTimeout(() => navigate("/login"), 900);
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : "Network error. Is the server running?";
+      // distinguish offline / CORS
+      const isNetwork = msg.includes("Failed to fetch") || msg.includes("NetworkError");
+      setAlert({
+        variant: "error",
+        title: isNetwork ? "Cannot reach server" : "Something went wrong",
+        message: isNetwork
+          ? "Unable to connect to http://localhost:8000. Please check the backend is running."
+          : msg,
+      });
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -86,7 +156,21 @@ export default function SignupPage(): JSX.Element {
             Takes under a minute. No card required.
           </motion.p>
 
-          <motion.form variants={fadeUp} onSubmit={handleSubmit} className="mt-9 space-y-5">
+          {/* Alert slot */}
+          <div className="mt-6 min-h-[0px]">
+            <AnimatePresence mode="wait">
+              {alert && (
+                <Alert
+                  variant={alert.variant}
+                  title={alert.title}
+                  message={alert.message}
+                  onDismiss={() => setAlert(null)}
+                />
+              )}
+            </AnimatePresence>
+          </div>
+
+          <motion.form variants={fadeUp} onSubmit={handleSubmit} className="mt-6 space-y-5">
             <Field
               id="name"
               label="Name"
