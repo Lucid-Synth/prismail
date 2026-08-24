@@ -1,6 +1,7 @@
 import { useState, type ButtonHTMLAttributes, type FormEvent, type JSX } from "react";
 import { motion, type Variants } from "framer-motion";
 import { UserRound, AtSign, Lock, Eye, EyeOff, ArrowRight, Loader2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const fadeUp: Variants = {
   hidden: { opacity: 0, y: 14 },
@@ -19,12 +20,34 @@ export default function SignupPage(): JSX.Element {
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
 
-  function handleSubmit(e: FormEvent<HTMLFormElement>): void {
+  const navigate = useNavigate();
+
+  async function handleSubmit(e: FormEvent<HTMLFormElement>): Promise<void> {
     e.preventDefault();
     setLoading(true);
-    // TODO: POST { name, username, password } to your /auth/signup endpoint,
-    // store the returned JWT, then redirect.
-    setTimeout(() => setLoading(false), 900);
+
+    try{
+      
+      const response = await fetch('http://localhost:8000/auth/signup',{
+        method: 'POST',
+        headers: {
+          "Content-type": "application/json"
+        },
+        body: JSON.stringify({
+          username,
+          password
+        })
+      })
+
+      const data = await response.json();
+      console.log(data.success)
+      setLoading(false)
+      
+      navigate('/login')
+    }
+    catch(error){
+      console.log("Error: ",error);
+    }
   }
 
   return (
