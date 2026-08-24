@@ -1,5 +1,6 @@
 import { useState, type ButtonHTMLAttributes, type JSX } from "react";
 import { motion, type Variants } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import {
   Target,
   Sparkles,
@@ -103,8 +104,20 @@ const FEATURES = [
   },
 ];
 
+
+
 export default function Home(): JSX.Element {
   const [menuOpen, setMenuOpen] = useState<boolean>(false);
+
+  const navigate = useNavigate();
+
+  function loginButtonHandler(){
+  navigate('/login');
+}
+
+  function signupButtonHandler(){
+    navigate('/signup')
+  }
 
   return (
     <div className="min-h-screen w-full bg-[#0B0C10] text-[#F5F1E8] font-['Inter',sans-serif] antialiased overflow-x-hidden">
@@ -126,10 +139,14 @@ export default function Home(): JSX.Element {
           </div>
 
           <div className="hidden items-center gap-3 md:flex">
-            <button className="text-sm text-[#F5F1E8]/70 transition-colors hover:text-[#F5F1E8]">
+            <button className="text-sm text-[#F5F1E8]/70 transition-colors hover:text-[#F5F1E8]"
+            onClick={loginButtonHandler}
+            >
               Log in
             </button>
-            <Button className="rounded-full bg-[#F5F1E8] px-5 py-2 text-[#0B0C10] hover:bg-[#F5F1E8]/90">
+            <Button className="rounded-full bg-[#F5F1E8] px-5 py-2 text-[#0B0C10] hover:bg-[#F5F1E8]/90"
+            onClick={signupButtonHandler}
+            >
               Start writing
             </Button>
           </div>
@@ -191,7 +208,9 @@ export default function Home(): JSX.Element {
 
             <motion.div variants={fadeUp} className="mt-9 flex flex-wrap items-center gap-4">
               <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-                <Button className="h-11 rounded-full bg-[#F5F1E8] px-6 text-[15px] font-medium text-[#0B0C10] hover:bg-[#F5F1E8]/90">
+                <Button className="h-11 rounded-full bg-[#F5F1E8] px-6 text-[15px] font-medium text-[#0B0C10] hover:bg-[#F5F1E8]/90"
+                onClick={signupButtonHandler}
+                >
                   Generate your first email
                   <ArrowRight size={16} className="ml-1.5" />
                 </Button>
@@ -342,38 +361,23 @@ export default function Home(): JSX.Element {
 
       {/* Pricing */}
       <section id="pricing" className="mx-auto max-w-6xl px-6 py-24">
-        <SectionHeading eyebrow="PRICING" title="Start free. Upgrade when it's working." />
+        <SectionHeading eyebrow="PRICING" title="Free forever." sub="No paid plan. Just start writing." />
 
         <motion.div
-          className="mt-14 grid gap-6 md:grid-cols-2"
+          className="mt-14 flex justify-center"
           variants={stagger}
           initial="hidden"
           whileInView="show"
           viewport={viewportOnce}
         >
-          <motion.div variants={fadeUp}>
+          <motion.div variants={fadeUp} className="w-full max-w-sm">
             <PricingCard
               name="Free"
               price="$0"
               period="/mo"
-              description="Enough to see if it actually sounds like you."
-              features={["5 emails per month", "All four tones", "GitHub + portfolio import"]}
+              description="Everything you need to sound like you."
+              features={["Unlimited emails", "All four tones", "GitHub + portfolio import", "Saved profiles & history"]}
               highlighted={false}
-            />
-          </motion.div>
-          <motion.div variants={fadeUp}>
-            <PricingCard
-              name="Pro"
-              price="$9"
-              period="/mo"
-              description="For anyone sending outreach every week."
-              features={[
-                "Unlimited emails",
-                "All four tones",
-                "GitHub + portfolio import",
-                "Saved profiles & history",
-              ]}
-              highlighted
             />
           </motion.div>
         </motion.div>
@@ -399,7 +403,8 @@ export default function Home(): JSX.Element {
           </motion.p>
           <motion.div variants={fadeUp} className="mt-9">
             <motion.div className="inline-block" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-              <Button className="h-11 rounded-full bg-[#F5F1E8] px-7 text-[15px] font-medium text-[#0B0C10] hover:bg-[#F5F1E8]/90">
+              <Button className="h-11 rounded-full bg-[#F5F1E8] px-7 text-[15px] font-medium text-[#0B0C10] hover:bg-[#F5F1E8]/90"
+              onClick={signupButtonHandler}>
                 Generate your first email
                 <ArrowRight size={16} className="ml-1.5" />
               </Button>
@@ -501,6 +506,12 @@ function PricingCard({
   features: string[];
   highlighted: boolean;
 }): JSX.Element {
+  const navigate = useNavigate()
+
+  function loginButtonHandler(){
+    navigate('/login');
+  }
+
   return (
     <div
       className={`rounded-2xl border p-8 ${
@@ -538,6 +549,7 @@ function PricingCard({
             ? "bg-[#F5F1E8] text-[#0B0C10] hover:bg-[#F5F1E8]/90"
             : "border border-[#23262E] bg-transparent text-[#F5F1E8] hover:bg-white/4"
         }`}
+        onClick={loginButtonHandler}
       >
         {highlighted ? "Go Pro" : "Start free"}
       </Button>

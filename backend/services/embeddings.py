@@ -15,7 +15,7 @@ embeddings = GoogleGenerativeAIEmbeddings(
 emails = load_email_documents()
 
 vector = embeddings.embed_query(emails[0].page_content)
-
+print(vector)
 print("Embedding successful!")
 print(vector)
 
