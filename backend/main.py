@@ -44,9 +44,6 @@ app.add_middleware(
 app.include_router(router)
 model.Base.metadata.create_all(bind=engine)
 
-
-# ---------- Global Error Handlers ----------
-
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
     # Extract first error for clean frontend alert, but also include all

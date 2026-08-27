@@ -23,7 +23,7 @@ Tone: {tone}
 Retrieved Email Examples:
 {emails}
 
-Write a personalized cold email.
+Write a personalized cold email using the details above. Highlight only the most important 1-3 phrases with **bold**. Do not use markdown links.
             """,
         ),
     ]

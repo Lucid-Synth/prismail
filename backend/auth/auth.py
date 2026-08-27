@@ -240,4 +240,23 @@ async def profile(
     db: db_dependency
 ):
     db_user = db.query(User).filter(User.id == user["id"]).first()
-    return db_user
+    if not db_user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found.",
+        )
+    return {
+        "success": True,
+        "id": db_user.id,
+        "username": db_user.username,
+    }
+
+
+@router.get("/me")
+async def me(user: user_dependency):
+    """Lightweight endpoint that returns username/id directly from JWT without DB hit."""
+    return {
+        "success": True,
+        "id": user["id"],
+        "username": user["username"],
+    }
