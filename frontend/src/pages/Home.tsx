@@ -224,7 +224,7 @@ export default function Home(): JSX.Element {
             </motion.div>
 
             <motion.p variants={fadeUp} className="mt-8 font-['JetBrains_Mono',monospace] text-[11px] text-[#F5F1E8]/35">
-              NO CARD REQUIRED · 5 FREE EMAILS
+              NO CARD REQUIRED 
             </motion.p>
           </motion.div>
 

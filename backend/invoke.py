@@ -18,7 +18,7 @@ load_dotenv()
 
 
 model = ChatMistralAI(
-    model="mistral-large-latest",
+    model="mistral-medium-latest",
     temperature=0.7,
 )
 
