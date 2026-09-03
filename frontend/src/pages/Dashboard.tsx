@@ -24,7 +24,7 @@ import { useNavigate } from "react-router-dom";
 import { Alert, type AlertVariant } from "../components/Alert";
 import AppSidebar from "../components/AppSidebar";
 
-const API_BASE_URL = (import.meta.env.API_URL as string | undefined) ?? "http://localhost:8000";
+const API_BASE_URL = (import.meta.env.API_URL as string | undefined) ?? "https://prismail.onrender.com";
 
 interface FormState {
   name: string;
