@@ -1,3 +1,4 @@
+import os
 import logging
 from fastapi import FastAPI, Depends, HTTPException, status, Request
 from fastapi.responses import JSONResponse
@@ -11,9 +12,14 @@ from sqlalchemy.exc import SQLAlchemyError
 from auth import router, get_current_user
 from invoke import generate_cold_email
 from fastapi.middleware.cors import CORSMiddleware
+from dotenv import load_dotenv
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
+
+load_dotenv()
+
+CLIENT_URL = os.getenv("CLIENT_URL")
 
 class User_detail(BaseModel):
     name: str
@@ -30,7 +36,7 @@ class User_detail(BaseModel):
 app = FastAPI()
 
 origins = [
-    "http://localhost:5173"
+    CLIENT_URL
 ]
 
 app.add_middleware(

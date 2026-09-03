@@ -4,7 +4,7 @@ import { User, Lock, Eye, EyeOff, ArrowRight, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Alert, type AlertVariant } from "../components/Alert";
 
-const API_BASE_URL = (import.meta.env.API_URL as string | undefined) ?? "https://prismail.onrender.com";
+const API_BASE_URL = (import.meta.env.API_URL as string | undefined) ?? "http://localhost:8000";
 
 const fadeUp: Variants = {
   hidden: { opacity: 0, y: 14 },
@@ -108,7 +108,7 @@ export default function LoginPage(): JSX.Element {
         variant: "error",
         title: isNetwork ? "Cannot reach server" : "Something went wrong",
         message: isNetwork
-          ? "Unable to connect to http://localhost:8000. Please check the backend is running."
+          ? "Unable to connect to server."
           : msg,
       });
     } finally {
