@@ -4,6 +4,8 @@ import { UserRound, AtSign, Lock, Eye, EyeOff, ArrowRight, Loader2 } from "lucid
 import { useNavigate } from "react-router-dom";
 import { Alert, type AlertVariant } from "../components/Alert";
 
+const API_BASE_URL = (import.meta.env.API_URL as string | undefined) ?? "http://localhost:8000";
+
 const fadeUp: Variants = {
   hidden: { opacity: 0, y: 14 },
   show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } },
@@ -69,7 +71,7 @@ export default function SignupPage(): JSX.Element {
     setLoading(true);
 
     try {
-      const response = await fetch("http://localhost:8000/auth/signup", {
+      const response = await fetch(`${API_BASE_URL}/auth/signup`, {
         method: "POST",
         headers: {
           "Content-type": "application/json",

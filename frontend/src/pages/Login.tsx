@@ -4,6 +4,8 @@ import { User, Lock, Eye, EyeOff, ArrowRight, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Alert, type AlertVariant } from "../components/Alert";
 
+const API_BASE_URL = (import.meta.env.API_URL as string | undefined) ?? "http://localhost:8000";
+
 const fadeUp: Variants = {
   hidden: { opacity: 0, y: 14 },
   show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } },
@@ -64,7 +66,7 @@ export default function LoginPage(): JSX.Element {
       formData.append("client_id", "");
       formData.append("client_secret", "");
 
-      const response = await fetch("http://localhost:8000/auth/login", {
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: "POST",
         headers: {
           "Content-type": "application/x-www-form-urlencoded",
