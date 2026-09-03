@@ -1,15 +1,5 @@
-import sys
-from pathlib import Path
-
-if __package__ is None:
-    sys.path.insert(0, str(Path(__file__).resolve().parent))
-
-try:
-    from .services.retriever import retrieve_emails
-    from .prompts.prompt import prompt
-except ImportError:
-    from services.retriever import retrieve_emails
-    from prompts.prompt import prompt
+from services.retriever import retrieve_emails
+from prompts.prompt import prompt
 
 from langchain_mistralai import ChatMistralAI
 from dotenv import load_dotenv

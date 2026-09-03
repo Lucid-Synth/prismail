@@ -7,8 +7,8 @@ from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from pydantic import BaseModel, Field, field_validator
 from starlette import status
-from ..config.database import SessionLocal
-from ..models.model import User
+from config.database import SessionLocal
+from models.model import User
 from fastapi.security import OAuth2PasswordBearer,OAuth2PasswordRequestForm
 from jose import jwt, JWTError
 import bcrypt

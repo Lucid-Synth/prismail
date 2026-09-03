@@ -1,7 +1,7 @@
 import os
 
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
-from .ingestion import load_email_documents
+from services.ingestion import load_email_documents
 from dotenv import load_dotenv
 import chromadb
 import uuid

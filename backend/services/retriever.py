@@ -1,7 +1,7 @@
 import os
 
 import chromadb
-from .query_embedding import query_embedding
+from services.query_embedding import query_embedding
 
 client = chromadb.CloudClient(
     api_key=os.getenv("CHROMA_API_KEY"),

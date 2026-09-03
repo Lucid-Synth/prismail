@@ -4,12 +4,12 @@ from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
 from pydantic import BaseModel
 from typing import List, Annotated
-from .models import model
-from .config.database import engine, SessionLocal
+from models import model
+from config.database import engine, SessionLocal
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
-from .auth import router, get_current_user
-from .invoke import generate_cold_email
+from auth import router, get_current_user
+from invoke import generate_cold_email
 from fastapi.middleware.cors import CORSMiddleware
 
 logger = logging.getLogger(__name__)
