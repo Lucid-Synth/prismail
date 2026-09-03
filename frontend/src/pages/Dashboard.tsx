@@ -17,10 +17,12 @@ import {
   ChevronRight,
   Pencil,
   Save,
+  Menu,
 } from "lucide-react";
 import { FiGithub } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { Alert, type AlertVariant } from "../components/Alert";
+import AppSidebar from "../components/AppSidebar";
 
 const API_BASE_URL = (import.meta.env.VITE_API_URL as string | undefined) ?? "http://localhost:8000";
 
@@ -290,30 +292,57 @@ export default function Dashboard(): JSX.Element {
   }
 
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
+  const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
   const activeTone = TONES.find((t) => t.name === form.tone) ?? TONES[0];
   const isFormValid = Boolean(form.name && form.email && form.role && form.company && form.skills);
 
   const displayName = profile?.username ?? form.name;
   const displayInitials = initials(displayName);
 
+  function handleLogout(): void {
+    localStorage.removeItem("token");
+    window.location.href = "/login";
+  }
+
   return (
-    <div className="min-h-screen w-full bg-[#0B0C10] font-['Inter',sans-serif] text-[#F5F1E8] antialiased">
-      <header className="border-b border-[#23262E]">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+    <div className="flex min-h-screen w-full flex-col bg-[#0B0C10] font-['Inter',sans-serif] text-[#F5F1E8] antialiased">
+      <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-[#23262E] bg-[#0B0C10]/85 px-4 backdrop-blur-md lg:px-6">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="rounded-md border border-[#23262E] p-2 text-[#F5F1E8]/70 hover:bg-white/5 hover:text-[#F5F1E8]"
+            aria-label="Open menu"
+          >
+            <Menu size={18} />
+          </button>
           <Logo />
+          <span className="hidden font-['JetBrains_Mono',monospace] text-[11px] tracking-widest text-[#F5F1E8]/30 lg:inline">— DASHBOARD</span>
+        </div>
+        <div className="flex items-center gap-3">
+          <span className="hidden font-['JetBrains_Mono',monospace] text-[11px] text-[#F5F1E8]/25 lg:inline">BUILD YOUR EMAIL</span>
           <button
             onClick={() => setDrawerOpen(true)}
-            className="flex items-center gap-2 rounded-full border border-[#23262E] py-1.5 pl-1.5 pr-3 transition-colors hover:border-[#3a3e48] hover:bg-white/3"
+            className="flex h-8 w-8 items-center justify-center rounded-full bg-[#F5F1E8]/10 text-xs font-medium"
+            aria-label="Open profile"
           >
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#F5F1E8]/10 text-xs font-medium text-[#F5F1E8]">
-              {displayInitials}
-            </span>
-            <span className="text-sm text-[#F5F1E8]/70">
-              {profileLoading ? "Loading..." : displayName || "Profile"}
-            </span>
+            {displayInitials}
           </button>
         </div>
       </header>
+
+      <AppSidebar
+        open={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+        displayInitials={displayInitials}
+        displayName={displayName || "Your name"}
+        username={profile?.username}
+        fallbackLabel={fallbackEmailLabel(form.email)}
+        profileLoading={profileLoading}
+        onOpenProfile={() => setDrawerOpen(true)}
+        onLogout={handleLogout}
+      />
+
+      <div className="flex flex-1 flex-col">
 
       <ProfileDrawer
         open={drawerOpen}
@@ -347,10 +376,10 @@ export default function Dashboard(): JSX.Element {
         }}
       />
 
-      <main className="mx-auto max-w-6xl px-6 py-2">
+      <main className="mx-auto w-full max-w-6xl px-6 py-6 lg:px-8">
         <motion.div variants={fadeUp} initial="hidden" animate="show">
-          <p className="text-md text-[#F5F1E8]/50 uppercase mt-3">
-            Build your email
+          <p className="font-['JetBrains_Mono',monospace] text-[11px] tracking-widest text-[#F5F1E8]/30 lg:hidden">
+            BUILD YOUR EMAIL
           </p>
         </motion.div>
 
@@ -454,8 +483,15 @@ export default function Dashboard(): JSX.Element {
           </div>
         </div>
       </main>
+      </div>
     </div>
   );
+}
+
+function fallbackEmailLabel(email: string): string {
+  const v = email.trim();
+  if (v) return v;
+  return "No email set";
 }
 
 

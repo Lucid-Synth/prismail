@@ -157,7 +157,7 @@ export default function SignupPage(): JSX.Element {
           </motion.p>
 
           {/* Alert slot */}
-          <div className="mt-6 min-h-[0px]">
+          <div className="mt-6 min-h-0">
             <AnimatePresence mode="wait">
               {alert && (
                 <Alert

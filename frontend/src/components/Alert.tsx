@@ -57,7 +57,7 @@ export function Alert({ variant, title, message, onDismiss }: AlertProps): JSX.E
     >
       {/* left accent bar */}
       <div
-        className={`absolute left-0 top-3 bottom-3 w-[3px] rounded-full opacity-80 ${
+        className={`absolute left-0 top-3 bottom-3 w-0.75 rounded-full opacity-80 ${
           variant === "error"
             ? "bg-[#F6788F]"
             : variant === "success"
