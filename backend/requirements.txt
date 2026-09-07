@@ -3,7 +3,7 @@ langchain-core
 langchain-community
 langchain-google-genai
 langchain-openrouter
-langchain-mistralai
+langchain-groq
 python-dotenv
 fastapi
 fastapi[standard]

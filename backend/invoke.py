@@ -1,15 +1,15 @@
 from services.retriever import retrieve_emails
 from prompts.prompt import prompt
 
-from langchain_mistralai import ChatMistralAI
+from langchain_groq import ChatGroq
 from dotenv import load_dotenv
 
 load_dotenv()
 
 
-model = ChatMistralAI(
-    model="mistral-medium-latest",
-    temperature=0.7,
+model = ChatGroq(
+    model="groq/compound",
+    temperature=0.7
 )
 
 
